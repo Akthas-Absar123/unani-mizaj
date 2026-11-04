@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unani Temperament (Mizaj) Assessment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+    }
+    .custom-radio:checked + label {
+      border-color: #059669;
+      background-color: #ecfdf5;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.12);
+    }
+    .custom-radio:checked + label .badge {
+      background-color: #059669;
+      color: #ffffff;
+      border-color: #059669;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #result-card, #result-card * {
+        visibility: visible;
+      }
+      #result-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        box-shadow: none;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-200 text-lg">
+          🌿
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Unani Temperament (Mizaj) Assessment</h1>
+          <p class="text-xs text-slate-500">15 Questions • Damwi, Balghami, Safrawi, Saudawi</p>
+        </div>
+      </div>
+      <div id="progress-container" class="text-right hidden sm:block">
+        <span id="answered-counter" class="text-sm font-semibold text-emerald-700">0 of 15 Answered</span>
+        <div class="w-36 bg-slate-100 rounded-full h-2 mt-1 overflow-hidden border border-slate-200">
+          <div id="progress-bar-fill" class="bg-emerald-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-3xl mx-auto w-full px-4 py-8 flex-1">
+
+    <!-- Intro Card -->
+    <div id="intro-card" class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-sm mb-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-full mb-3">
+        <span>⚖️ Unani Tibb Diagnostic System</span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-snug">
+        Answer the following questions to identify your predominant Unani temperament: Damwi, Balghami, Safrawi or Saudawi.
+      </h2>
+      <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+        In Unani medicine, health and constitution are defined by the balance of four humours (*Akhlat*). Answer these 15 questions based on your lifelong natural physical and mental traits to discover your predominant Mizaj (Temperament).
+      </p>
+
+      <!-- 4 Temperaments Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-100 text-center">
+        <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-100">
+          <span class="block text-xs font-bold text-rose-700 uppercase tracking-wider">Option A</span>
+          <span class="text-sm font-bold text-slate-800">Damwi (දම්වී)</span>
+          <span class="block text-[11px] text-slate-500 mt-0.5">Air • Hot & Moist</span>
+        </div>
+        <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-100">
+          <span class="block text-xs font-bold text-blue-700 uppercase tracking-wider">Option B</span>
+          <span class="text-sm font-bold text-slate-800">Balghami (බල්ගමී)</span>
+          <span class="block text-[11px] text-slate-500 mt-0.5">Water • Cold & Moist</span>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-100">
+          <span class="block text-xs font-bold text-amber-700 uppercase tracking-wider">Option C</span>
+          <span class="text-sm font-bold text-slate-800">Safrawi (සෆ්රාවී)</span>
+          <span class="block text-[11px] text-slate-500 mt-0.5">Fire • Hot & Dry</span>
+        </div>
+        <div class="p-3 rounded-xl bg-stone-100/70 border border-stone-200">
+          <span class="block text-xs font-bold text-stone-700 uppercase tracking-wider">Option D</span>
+          <span class="text-sm font-bold text-slate-800">Saudawi (සවුදාවී)</span>
+          <span class="block text-[11px] text-slate-500 mt-0.5">Earth • Cold & Dry</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Questionnaire Form -->
+    <form id="quiz-form" class="space-y-6">
+      <div id="questions-container" class="space-y-6"></div>
+
+      <!-- Submit Section -->
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
+        <div class="text-sm text-slate-500">
+          <span id="unanswered-warning" class="text-amber-600 font-medium hidden">⚠️ Please answer all 15 questions before calculating.</span>
+          <span id="all-answered-msg" class="text-emerald-700 font-medium hidden">✓ All 15 questions answered! Ready to calculate your temperament.</span>
+        </div>
+        <button type="submit" id="submit-btn" class="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md shadow-emerald-200 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer">
+          Calculate My Unani Temperament →
+        </button>
+      </div>
+    </form>
+
+    <!-- Results Display Card (Hidden Initially) -->
+    <div id="result-card" class="hidden bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/90 shadow-lg mt-8 space-y-8 animate-fade-in">
+      
+      <!-- Top Banner -->
+      <div class="text-center pb-4 border-b border-slate-100">
+        <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full uppercase tracking-wider mb-2">
+          Assessment Complete
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Your Unani Constitutional Profile</h2>
+        <p class="text-slate-500 text-sm mt-1">Based on classical Greco-Arabic Unani Tibb Humoral Theory</p>
+      </div>
+
+      <!-- Predominant Highlight Box -->
+      <div id="dominant-hero" class="rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden bg-gradient-to-r from-emerald-600 to-teal-600">
+        <div class="relative z-10">
+          <span class="text-xs font-bold uppercase tracking-wider bg-white/20 px-3 py-1 rounded-full text-white inline-block mb-3">
+            Predominant Temperament (ඝාලිබ් මිසාජ්)
+          </span>
+          <h3 id="dominant-title" class="text-3xl sm:text-4xl font-extrabold tracking-tight">Damwi</h3>
+          <p id="dominant-sinhala" class="text-emerald-100 text-base font-medium mt-1">දම්වී ස්වභාවය</p>
+          <p id="dominant-tagline" class="text-white/95 text-sm sm:text-base font-semibold mt-2">Energetic, Warm-hearted, Muscular & Sociable</p>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-white/20 text-xs">
+            <div>
+              <span class="text-white/70 block">Element (උන්සුර්):</span>
+              <span id="dominant-element" class="font-bold text-white text-sm">Air (වායුව)</span>
+            </div>
+            <div>
+              <span class="text-white/70 block">Primary Qualities (කයිෆියත්):</span>
+              <span id="dominant-qualities" class="font-bold text-white text-sm">Hot & Moist (උනුසුම් සහ තෙත්)</span>
+            </div>
+            <div class="col-span-2 sm:col-span-1">
+              <span class="text-white/70 block">Dominance Score:</span>
+              <span id="dominant-score-badge" class="font-bold text-white text-sm">10 / 15 (67%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Temperament Score Breakdown -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-bold text-slate-900 flex items-center justify-between">
+          <span>Humoral Distribution Breakdown</span>
+          <span class="text-xs font-normal text-slate-500">Total: 15 Questions</span>
+        </h4>
+        <div id="score-bars" class="space-y-3"></div>
+      </div>
+
+      <!-- In-Depth Descriptions -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+        <div class="bg-emerald-50/60 rounded-xl p-5 border border-emerald-100">
+          <h5 class="font-bold text-emerald-900 text-sm flex items-center gap-2 mb-2">
+            <span>🧬</span> Physical & Behavioral Traits
+          </h5>
+          <p id="dominant-traits" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+        </div>
+        <div class="bg-amber-50/60 rounded-xl p-5 border border-amber-100">
+          <h5 class="font-bold text-amber-900 text-sm flex items-center gap-2 mb-2">
+            <span>🥗</span> Dietary & Lifestyle Advice (Tadbeer)
+          </h5>
+          <p id="dominant-advice" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Actions (Print, Retake) -->
+      <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 no-print">
+        <button id="print-btn" class="flex-1 py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-bold text-slate-700 text-sm transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+          🖨️ Print / Save as PDF
+        </button>
+        <button id="retake-btn" class="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md shadow-emerald-200 cursor-pointer">
+          🔄 Retake Assessment
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500 no-print">
+    <p>Unani Mizaj (Temperament) Diagnostic System • Based on 15 Classical Signs (Alamat-e-Mizaj)</p>
+  </footer>
+
+  <!-- Script Data & Logic -->
+  <script>
+    // 15 Standard Questions strictly mapped:
+    // a -> Damwi
+    // b -> Balghami
+    // c -> Safrawi
+    // d -> Saudawi
+    const questionsData = [
+      {
+        id: 1,
+        titleEn: "How does your skin usually feel when touched?",
+        titleSi: "ඔබගේ සම අල්ලන විට දැනෙන්නේ කොහොමද?",
+        options: [
+          { key: "a", type: "damwi", en: "Warm and moderately soft", si: "උනුසුම් සහ මෘදු" },
+          { key: "b", type: "balghami", en: "Cool and soft", si: "සීතල සහ මෘදු" },
+          { key: "c", type: "safrawi", en: "Warm and dry/firm", si: "උනුසුම් සහ වියලි / තෙත්" },
+          { key: "d", type: "saudawi", en: "Cool and dry/firm", si: "සීතල සහ වියලි" }
+        ]
+      },
+      {
+        id: 2,
+        titleEn: "How would you describe your usual body composition?",
+        titleSi: "ඔබගේ ශරීරයේ සංයුතිය කෙලෙසද?",
+        options: [
+          { key: "a", type: "damwi", en: "Well-developed muscles with moderate fat", si: "හොඳට වර්ධනය වුන මාංශ පේශි සමග සාමාන්‍යයෙන් තෙල් සහිත" },
+          { key: "b", type: "balghami", en: "Soft/fleshy body with more fat", si: "මහත ශරීරය සහ තෙල් වැඩි" },
+          { key: "c", type: "safrawi", en: "Lean body with relatively little fat", si: "කෙට්ටු ශරීරය සහ තෙල් අඩු" },
+          { key: "d", type: "saudawi", en: "Lean body with less muscle and fat", si: "කෙට්ටු ශරීරය සහ මාංශ පේශි සහ තෙල් අඩු" }
+        ]
+      },
+      {
+        id: 3,
+        titleEn: "How would you describe your hair?",
+        titleSi: "ඔබගේ කොණ්ඩය සම්බන්ධයෙන්?",
+        options: [
+          { key: "a", type: "damwi", en: "Thick and moderately soft", si: "ඝනකම සහිත සාමාන්‍යයෙන් මෘදු" },
+          { key: "b", type: "balghami", en: "Soft, smooth and relatively fine", si: "මෘදු සහ අඩු ගණකම සහිත" },
+          { key: "c", type: "safrawi", en: "Fine, relatively dry and sometimes reddish/yellowish", si: "සාමාන්‍යයෙන් වියලි / රන්වන් පැහැති" },
+          { key: "d", type: "saudawi", en: "Coarse, dry and relatively thick", si: "වියළි සහ සාමාන්‍ය ඝනකමකින් යුතු" }
+        ]
+      },
+      {
+        id: 4,
+        titleEn: "How is your natural hair growth?",
+        titleSi: "ස්වභාවික රෝම වර්ධනය කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Moderate to relatively abundant", si: "සාමාන්‍ය හෝ තරමක් බහුල වර්ධනය" },
+          { key: "b", type: "balghami", en: "Relatively slow", si: "සාපේක්ෂව මන්දගාමී වර්ධනය" },
+          { key: "c", type: "safrawi", en: "Relatively rapid", si: "සාපේක්ෂව වේගවත් වර්ධනය" },
+          { key: "d", type: "saudawi", en: "Dry/coarse with slower growth", si: "වියළි/රළු සහ මන්දගාමී වර්ධනය" }
+        ]
+      },
+      {
+        id: 5,
+        titleEn: "What is your usual natural complexion?",
+        titleSi: "ඔබගේ සාමාන්‍ය සමේ පැහැය කුමක්ද?",
+        options: [
+          { key: "a", type: "damwi", en: "Reddish / pinkish", si: "රෝස පැහැ / රතු පැහැයට හුරු" },
+          { key: "b", type: "balghami", en: "Whitish / pale", si: "සුදුමැලි / සුදු පැහැති" },
+          { key: "c", type: "safrawi", en: "Yellowish / warm-toned", si: "කහ පැහැයට හුරු / උණුසුම් පැහැති" },
+          { key: "d", type: "saudawi", en: "Dusky / darkish", si: "අඳුරු / දුඹුරු පැහැයට හුරු" }
+        ]
+      },
+      {
+        id: 6,
+        titleEn: "Which description best matches your body structure?",
+        titleSi: "ඔබගේ ශරීර ව්‍යුහයට වඩාත්ම ගැළපෙන්නේ කුමක්ද?",
+        options: [
+          { key: "a", type: "damwi", en: "Strong, broad and well-developed", si: "ශක්තිමත්, පුළුල් සහ හොඳින් වර්ධනය වූ" },
+          { key: "b", type: "balghami", en: "Rounded, soft and fleshy", si: "වටකුරු, මෘදු සහ මාංසල" },
+          { key: "c", type: "safrawi", en: "Lean and relatively narrow", si: "කෙට්ටු සහ සාපේක්ෂව පටු" },
+          { key: "d", type: "saudawi", en: "Thin, bony and prominent joints", si: "කෙට්ටු, ඇටකටු පෙනෙන සහ නෙරා ගිය සන්ධි සහිත" }
+        ]
+      },
+      {
+        id: 7,
+        titleEn: "How does your body generally respond to hot weather?",
+        titleSi: "උණුසුම් කාලගුණයට ඔබගේ ශරීරය ප්‍රතිචාර දක්වන්නේ කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "I tolerate heat reasonably well", si: "මම උණුසුම සාමාන්‍යයෙන් හොඳින් දරාගනිමි" },
+          { key: "b", type: "balghami", en: "I generally prefer warmth", si: "මම සාමාන්‍යයෙන් උණුසුමට ප්‍රිය කරමි" },
+          { key: "c", type: "safrawi", en: "I become uncomfortable in heat very easily", si: "මම ඉතා පහසුවෙන් උණුසුම නිසා අපහසුතාවයට පත්වෙමි" },
+          { key: "d", type: "saudawi", en: "I prefer warmth but may dislike excessive heat", si: "මම උණුසුමට කැමති නමුත් අධික උණුසුමට අකමැතියි" }
+        ]
+      },
+      {
+        id: 8,
+        titleEn: "How much sleep do you naturally prefer?",
+        titleSi: "ස්වභාවිකවම ඔබ කොපමණ නින්දක් ප්‍රිය කරනවාද?",
+        options: [
+          { key: "a", type: "damwi", en: "Moderate sleep", si: "සාමාන්‍ය ප්‍රමාණයේ නින්දක්" },
+          { key: "b", type: "balghami", en: "Longer sleep; I enjoy sleeping more", si: "දිගු නින්දක්; මම වැඩිපුර නිදාගැනීමට ප්‍රිය කරමි" },
+          { key: "c", type: "safrawi", en: "Less sleep; I can remain active with relatively little sleep", si: "අඩු නින්දක්; මට අඩු නින්දකින් ක්‍රියාශීලීව සිටිය හැක" },
+          { key: "d", type: "saudawi", en: "Sleep may be lighter or disturbed", si: "සැහැල්ලු හෝ බාධා සහිත නින්දක්" }
+        ]
+      },
+      {
+        id: 9,
+        titleEn: "How do you usually feel after waking?",
+        titleSi: "නින්දෙන් අවදි වූ පසු ඔබට සාමාන්‍යයෙන් දැනෙන්නේ කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Fresh and energetic", si: "ප්‍රබෝධමත් සහ ජවසම්පන්න බවක්" },
+          { key: "b", type: "balghami", en: "Slow to become fully active", si: "සම්පූර්ණයෙන්ම ක්‍රියාශීලී වීමට කාලය ගතවීම" },
+          { key: "c", type: "safrawi", en: "Quickly active and alert", si: "ක්ෂණිකව ක්‍රියාශීලී සහ අවදියෙන් සිටින බවක්" },
+          { key: "d", type: "saudawi", en: "May need time to feel mentally settled", si: "මානසිකව සන්සුන් වීමට කාලයක් අවශ්‍ය වීම" }
+        ]
+      },
+      {
+        id: 10,
+        titleEn: "How would you describe your usual appetite and digestion?",
+        titleSi: "ඔබගේ ආහාර රුචිය සහ ආහාර දිරවීම කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Good appetite and generally good digestion", si: "හොඳ ආහාර රුචිය සහ සාමාන්‍යයෙන් හොඳ ජීර්ණය" },
+          { key: "b", type: "balghami", en: "Appetite is moderate, digestion tends to be slower", si: "ආහාර රුචිය මධ්‍යස්ථයි, ජීර්ණය මන්දගාමී වීමට නැඹුරුයි" },
+          { key: "c", type: "safrawi", en: "Strong appetite but digestion may feel intense/rapid", si: "තදබල ආහාර රුචිය සහ වේගවත්/තීව්‍ර ජීර්ණය" },
+          { key: "d", type: "saudawi", en: "Appetite and digestion may be variable/irregular", si: "ආහාර රුචිය සහ ජීර්ණය වෙනස්වන සුළුයි / අක්‍රමවත්" }
+        ]
+      },
+      {
+        id: 11,
+        titleEn: "How would you describe your general physical activity?",
+        titleSi: "ඔබගේ සාමාන්‍ය ශාරීරික ක්‍රියාශීලී බව කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Active and energetic", si: "ක්‍රියාශීලී සහ ජවසම්පන්න" },
+          { key: "b", type: "balghami", en: "Slow and steady", si: "සෙමින් සහ ස්ථාවරව" },
+          { key: "c", type: "safrawi", en: "Very active and quick", si: "ඉතා ක්‍රියාශීලී සහ වේගවත්" },
+          { key: "d", type: "saudawi", en: "Variable, often deliberate and slow", si: "වෙනස්වන සුළු, බොහෝවිට කල්පනාකාරී සහ සෙමෙන්" }
+        ]
+      },
+      {
+        id: 12,
+        titleEn: "Which best describes your usual bowel habit?",
+        titleSi: "ඔබගේ මළපහ පිටවීම වඩාත් හොඳින් විස්තර කරන්නේ කුමක්ද?",
+        options: [
+          { key: "a", type: "damwi", en: "Regular and moderate", si: "ක්‍රමවත් සහ සාමාන්‍ය ප්‍රමාණයෙන්" },
+          { key: "b", type: "balghami", en: "Tendency toward slower bowel movement", si: "මන්දගාමී බඩවැලේ ක්‍රියාකාරිත්වයකට නැඹුරුතාවයක්" },
+          { key: "c", type: "safrawi", en: "Tendency toward frequent/looser stools", si: "නිතර හෝ බුරුල්ව මළපහ පිටවීමේ නැඹුරුතාවයක්" },
+          { key: "d", type: "saudawi", en: "Tendency toward dryness/constipation", si: "වියළි බව / මලබද්ධය සඳහා නැඹුරුතාවයක්" }
+        ]
+      },
+      {
+        id: 13,
+        titleEn: "How would you describe your usual urine?",
+        titleSi: "ඔබගේ මුත්‍රා පිටවීම සාමාන්‍යයෙන් කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Moderate quantity and colour", si: "මධ්‍යස්ථ ප්‍රමාණය සහ සාමාන්‍ය පැහැය" },
+          { key: "b", type: "balghami", en: "Relatively pale/dilute", si: "සාපේක්ෂව සුදුමැලි / තනුක පැහැය" },
+          { key: "c", type: "safrawi", en: "Relatively yellow and concentrated", si: "සාපේක්ෂව කහ පැහැති සහ සාන්ද්‍රණය වැඩි" },
+          { key: "d", type: "saudawi", en: "Relatively concentrated/dark with dryness tendency", si: "සාපේක්ෂව සාන්ද්‍ර/අඳුරු පැහැති සහ වියළි බවේ නැඹුරුව" }
+        ]
+      },
+      {
+        id: 14,
+        titleEn: "How do you usually react emotionally?",
+        titleSi: "ඔබ සාමාන්‍යයෙන් චිත්තවේගීයව ප්‍රතිචාර දක්වන්නේ කෙසේද?",
+        options: [
+          { key: "a", type: "damwi", en: "Friendly, confident and sociable", si: "මිත්‍රශීලී, ආත්ම විශ්වාසයෙන් පිරි සහ සමාජශීලී" },
+          { key: "b", type: "balghami", en: "Calm, patient and relaxed", si: "සන්සුන්, ඉවසිලිවන්ත සහ සැහැල්ලු" },
+          { key: "c", type: "safrawi", en: "Quick, enthusiastic and easily irritated", si: "ඉක්මන්, උද්යෝගිමත් සහ පහසුවෙන් කෝපයට පත්වන" },
+          { key: "d", type: "saudawi", en: "Thoughtful, serious and reserved", si: "කල්පනාකාරී, බැරෑරුම් සහ සංයමයෙන් යුත්" }
+        ]
+      },
+      {
+        id: 15,
+        titleEn: "When faced with a stressful situation, what is your usual response?",
+        titleSi: "ආතති සහගත අවස්ථාවකදී ඔබගේ සාමාන්‍ය ප්‍රතිචාරය කුමක්ද?",
+        options: [
+          { key: "a", type: "damwi", en: "I talk about it and recover relatively quickly", si: "මම ඒ ගැන කතා කර සාපේක්ෂව ඉක්මනින් යථා තත්ත්වයට පත්වෙමි" },
+          { key: "b", type: "balghami", en: "I remain quiet and take time to respond", si: "මම නිශ්ශබ්දව සිට ප්‍රතිචාර දැක්වීමට කාලය ගනිමි" },
+          { key: "c", type: "safrawi", en: "I react quickly and strongly, then settle", si: "මම ක්ෂණිකව සහ තදින් ප්‍රතිචාර දක්වා පසුව සන්සුන් වෙමි" },
+          { key: "d", type: "saudawi", en: "I think deeply about it and may continue thinking about it", si: "මම ඒ ගැන ගැඹුරින් සිතන අතර දිගටම ඒ ගැන සිතමින් සිටිය හැක" }
+        ]
+      }
+    ];
+
+    // Profile metadata
+    const temperaments = {
+      damwi: {
+        name: "Damwi (Sanguine / خلط الدم)",
+        sinhala: "දම්වී (ලේ ප්‍රමුඛ ස්වභාවය)",
+        tagline: "Warm-Hearted, Energetic, Muscular & Sociable",
+        element: "Air (වායුව)",
+        qualities: "Hot & Moist (උනුසුම් සහ තෙත්)",
+        color: "rose",
+        gradient: "from-rose-600 to-red-500",
+        traits: "People of Damwi temperament have healthy blood circulation, a well-proportioned muscular build, and a warm rosy complexion. They are cheerful, sociable, optimistic, and natural leaders. They have strong digestion and restorative sleep, but may be prone to high blood pressure or inflammatory ailments if excess heat develops.",
+        advice: "Maintain balance with cooling, hydrating, and fresh foods (barley, pomegranate, lettuce, cucumber, citrus fruits). Avoid excessive red meats, heavy fats, and over-spiced meals. Regular cardiovascular exercise keeps the blood healthy."
+      },
+      balghami: {
+        name: "Balghami (Phlegmatic / خلط البلغم)",
+        sinhala: "බල්ගමී (සෙම ප්‍රමුඛ ස්වභාවය)",
+        tagline: "Calm, Patient, Composed & Peaceful",
+        element: "Water (ජලය)",
+        qualities: "Cold & Moist (සීතල සහ තෙත්)",
+        color: "blue",
+        gradient: "from-blue-600 to-cyan-600",
+        traits: "Balghami individuals have a peaceful, tolerant, and calm temperament. Physically, their build tends to be soft, fleshy, or rounded, with cool, soft skin and a pale or fair complexion. They digest food slowly, enjoy deeper, longer sleep, and rarely lose their temper. When unbalanced, they can experience sluggishness, water retention, or respiratory congestion.",
+        advice: "Favor warming, dry, and stimulating foods. Spices such as ginger, black pepper, cinnamon, garlic, and raw honey help stimulate metabolism. Minimize dairy excess, cold chilled drinks, and heavy sleep during daylight hours. Vigorous physical exercise is ideal."
+      },
+      safrawi: {
+        name: "Safrawi (Choleric / خلط الصفراء)",
+        sinhala: "සෆ්රාවී (පිත ප්‍රමුඛ ස්වභාවය)",
+        tagline: "Ambitious, Quick-Witted, Sharp & Decisive",
+        element: "Fire (ගින්දර)",
+        qualities: "Hot & Dry (උනුසුම් සහ වියලි)",
+        color: "amber",
+        gradient: "from-amber-600 to-orange-500",
+        traits: "Safrawi individuals are sharp, alert, passionate, and highly energetic. Physically, they have a lean, slender frame with warm, dry skin and a yellowish or warm undertone. They have intense appetite, rapid digestion, and need less sleep. Under high stress, they can become irritable, impatient, or quick-tempered, and may be prone to hyperacidity or skin heat.",
+        advice: "Incorporate cooling, moistening, and sweet/sour foods such as cucumbers, watermelon, mint, coriander, buttermilk, and coconut water. Avoid excessively fried, deep-roasted, pungent, or salty foods. Avoid midday sun exposure and practice cooling relaxation techniques."
+      },
+      saudawi: {
+        name: "Saudawi (Melancholic / خلط السوداء)",
+        sinhala: "සවුදාවී (කළු පිත ප්‍රමුඛ ස්වභාවය)",
+        tagline: "Thoughtful, Analytical, Deep & Reserved",
+        element: "Earth (පෘථිවිය)",
+        qualities: "Cold & Dry (සීතල සහ වියලි)",
+        color: "stone",
+        gradient: "from-stone-700 to-slate-600",
+        traits: "Saudawi individuals are introspective, sincere, deeply reflective, and analytical with outstanding attention to detail. Physically, they tend to be slender and bony with prominent joints and cool, dry skin. Their digestion and sleep can be irregular, and they have a tendency toward overthinking, worry, or insomnia under sustained stress.",
+        advice: "Nourish the body with warm, moist, unctuous foods such as warm soups, olive oil, almonds, dates, and warm spiced milk. Avoid dry, stale, cold, or highly astringent foods. Maintain a strict, restful sleep routine and engage in soothing, peaceful hobbies."
+      }
+    };
+
+    // Render questions
+    const container = document.getElementById("questions-container");
+    questionsData.forEach((q, index) => {
+      const qCard = document.createElement("div");
+      qCard.className = "bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/90 shadow-xs transition-all hover:border-slate-300";
+      qCard.innerHTML = `
+        <div class="flex items-start gap-3 mb-4">
+          <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs flex items-center justify-center border border-emerald-200 mt-0.5">
+            ${q.id}
+          </span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base leading-snug">${q.titleEn}</h3>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">${q.titleSi}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2.5">
+          ${q.options.map(opt => `
+            <div>
+              <input type="radio" name="q_${q.id}" id="q_${q.id}_${opt.key}" value="${opt.type}" class="hidden custom-radio" onchange="updateProgress()">
+              <label for="q_${q.id}_${opt.key}" class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-50 cursor-pointer transition-all">
+                <span class="badge flex-shrink-0 w-6 h-6 rounded-full border border-slate-300 text-xs font-bold flex items-center justify-center text-slate-600 uppercase transition-colors">
+                  ${opt.key}
+                </span>
+                <div class="text-xs sm:text-sm">
+                  <span class="font-medium text-slate-800">${opt.en}</span>
+                  <span class="block text-slate-500 text-[11px] sm:text-xs mt-0.5">${opt.si}</span>
+                </div>
+              </label>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      container.appendChild(qCard);
+    });
+
+    // Progress Tracker
+    function updateProgress() {
+      let answered = 0;
+      for (let i = 1; i <= 15; i++) {
+        if (document.querySelector(`input[name="q_${i}"]:checked`)) {
+          answered++;
+        }
+      }
+      const pct = Math.round((answered / 15) * 100);
+      document.getElementById("progress-bar-fill").style.width = pct + "%";
+      document.getElementById("answered-counter").innerText = `${answered} of 15 Answered`;
+
+      const warning = document.getElementById("unanswered-warning");
+      const readyMsg = document.getElementById("all-answered-msg");
+      if (answered === 15) {
+        warning.classList.add("hidden");
+        readyMsg.classList.remove("hidden");
+      } else {
+        readyMsg.classList.add("hidden");
+      }
+    }
+
+    // Form Submission & Calculation
+    document.getElementById("quiz-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const counts = { damwi: 0, balghami: 0, safrawi: 0, saudawi: 0 };
+      let unanswered = [];
+
+      for (let i = 1; i <= 15; i++) {
+        const selected = document.querySelector(`input[name="q_${i}"]:checked`);
+        if (selected) {
+          counts[selected.value]++;
+        } else {
+          unanswered.push(i);
+        }
+      }
+
+      if (unanswered.length > 0) {
+        document.getElementById("unanswered-warning").classList.remove("hidden");
+        document.getElementById("unanswered-warning").innerText = `⚠️ Please answer question(s): ${unanswered.join(", ")} before submitting.`;
+        // Scroll to first unanswered question
+        const firstUnanswered = document.querySelector(`input[name="q_${unanswered[0]}"]`).closest(".bg-white");
+        firstUnanswered.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      // Rank scores
+      const sorted = Object.keys(counts).map(key => ({
+        key: key,
+        count: counts[key],
+        pct: Math.round((counts[key] / 15) * 100),
+        data: temperaments[key]
+      })).sort((a, b) => b.count - a.count);
+
+      const dominant = sorted[0];
+
+      // Update Result Hero
+      const hero = document.getElementById("dominant-hero");
+      hero.className = `rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden bg-gradient-to-r ${dominant.data.gradient}`;
+      document.getElementById("dominant-title").innerText = dominant.data.name;
+      document.getElementById("dominant-sinhala").innerText = dominant.data.sinhala;
+      document.getElementById("dominant-tagline").innerText = dominant.data.tagline;
+      document.getElementById("dominant-element").innerText = dominant.data.element;
+      document.getElementById("dominant-qualities").innerText = dominant.data.qualities;
+      document.getElementById("dominant-score-badge").innerText = `${dominant.count} / 15 (${dominant.pct}%)`;
+
+      document.getElementById("dominant-traits").innerText = dominant.data.traits;
+      document.getElementById("dominant-advice").innerText = dominant.data.advice;
+
+      // Render Score Bars
+      const scoreBarsContainer = document.getElementById("score-bars");
+      scoreBarsContainer.innerHTML = sorted.map(item => `
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+          <div class="flex items-center justify-between text-xs sm:text-sm font-semibold text-slate-800 mb-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${item.key === 'damwi' ? 'bg-rose-500' : item.key === 'balghami' ? 'bg-blue-500' : item.key === 'safrawi' ? 'bg-amber-500' : 'bg-stone-600'}"></span>
+              <span>${item.data.name}</span>
+            </div>
+            <span class="font-bold">${item.count} / 15 (${item.pct}%)</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+            <div class="h-2.5 rounded-full transition-all duration-700 ${item.key === 'damwi' ? 'bg-rose-500' : item.key === 'balghami' ? 'bg-blue-500' : item.key === 'safrawi' ? 'bg-amber-500' : 'bg-stone-600'}" style="width: ${item.pct}%"></div>
+          </div>
+        </div>
+      `).join('');
+
+      // Show Result Card & Scroll
+      const resultCard = document.getElementById("result-card");
+      resultCard.classList.remove("hidden");
+      resultCard.scrollIntoView({ behavior: "smooth" });
+    });
+
+    // Print / PDF Button
+    document.getElementById("print-btn").addEventListener("click", () => {
+      window.print();
+    });
+
+    // Retake Button
+    document.getElementById("retake-btn").addEventListener("click", () => {
+      document.getElementById("quiz-form").reset();
+      updateProgress();
+      document.getElementById("result-card").classList.add("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
